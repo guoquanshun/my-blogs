@@ -1,3 +1,4 @@
+const xss = require('xss');
 const { exec } = require('../db/mysql')
 
 const getBlogList = function(author, keyword) {
@@ -9,6 +10,7 @@ const getBlogList = function(author, keyword) {
         sql += `and title like '%${keyword}%' `
     }
     sql += `order by createtime desc;`;
+    console.log('sql', sql);
     return exec(sql);
 }
 
@@ -20,9 +22,9 @@ const getBlogDetail = id => {
 }
 
 const insertBlog = (bodyData = {}) => {
-    const { author = '郭全顺', title, content } = bodyData;
+    const { author, title, content } = bodyData;
     const sql = `
-        insert into blogs (author, title, content, createtime) values ('${author}', '${title}', '${content}', ${Date.now()});
+        insert into blogs (author, title, content, createtime) values ('${xss(author)}', '${xss(title)}', '${xss(content)}', ${Date.now()});
     `;
     return exec(sql).then(data => {
         return {
